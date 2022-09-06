@@ -2,26 +2,25 @@
 
 namespace Coffeemaru\Shellos;
 
-use Coffeemaru\Shellos\Executors\Exec;
+use Coffeemaru\Shellos\Executors\PHPExecutor;
 
 class ShellCommand
 {
     private int $result;
     private array $output;
     private string $command;
-    private SystemExecutor $exec;
 
-    private static string $default_executor_class;
+    protected SystemExecutor $executor;
+    protected static SystemExecutor $default_executor;
 
     public function __construct(string $command)
     {
-        $this->result = 0;
-        $this->output = [];
         $this->command = $command;
     }
 
     public function execute(): bool
     {
+        $this->output = [];
         $executor = $this->getExecutor();
         $this->result = $executor->execute($this->command, $this->output);
         return $this->result === 0;
@@ -37,25 +36,25 @@ class ShellCommand
         return implode("\n", $this->output);
     }
 
-    public function setExecuter(SystemExecutor $exec): void
+    public function setExecutor(SystemExecutor $executor): void
     {
-        $this->exec = $exec;
+        $this->executor = $executor;
     }
 
-    public static function setDefaultExecutor(string $executor_class): void
+    public static function setDefaultExecutor(SystemExecutor $executor): void
     {
-        static::$default_executor_class = $executor_class;
+        static::$default_executor = $executor;
     }
 
     public function getExecutor(): SystemExecutor
     {
-        if (!isset($this->exec)) {
-            if (isset(static::$default_executor_class)) {
-                $this->exec = new static::$default_executor_class();
+        if (!isset($this->executor)) {
+            if (isset(static::$default_executor)) {
+                $this->executor = static::$default_executor;
             } else {
-                $this->exec = new Exec();
+                $this->executor = new PHPExecutor;
             }
         }
-        return $this->exec;
+        return $this->executor;
     }
 }

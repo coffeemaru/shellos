@@ -7,7 +7,7 @@ use Coffeemaru\Shellos\SystemExecutor;
 /**
  * Executer that use the php exec function to run the system commands.
  */
-class Exec implements SystemExecutor
+class PHPExecutor implements SystemExecutor
 {
     /**
      * @inheritdoc

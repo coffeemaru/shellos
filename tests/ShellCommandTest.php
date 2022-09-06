@@ -3,7 +3,8 @@
 namespace Tests;
 
 use Coffeemaru\Shellos\Executors\Exec;
-use Coffeemaru\Shellos\Executors\System;
+use Coffeemaru\Shellos\Executors\PHPExecutor;
+use Coffeemaru\Shellos\Executors\PHPSystemExecutor;
 use Coffeemaru\Shellos\ShellCommand;
 use Coffeemaru\Shellos\SystemExecutor;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -44,7 +45,7 @@ class ShellCommandTest extends TestCase
             });
 
         /** @var SystemExecutor $executerMock */
-        $command->setExecuter($executerMock);
+        $command->setExecutor($executerMock);
 
         $this->assertTrue($command->execute(), "was unable to execut a simple command");
         $this->assertEquals(
@@ -63,15 +64,15 @@ class ShellCommandTest extends TestCase
     {
         $command = new ShellCommand("");
         $this->assertInstanceOf(
-            Exec::class,
+            PHPExecutor::class,
             $command->getExecutor(),
             "The default executor class must be the " . Exec::class
         );
 
-        ShellCommand::setDefaultExecutor(System::class);
+        ShellCommand::setDefaultExecutor(new PHPSystemExecutor());
         $command = new ShellCommand("");
         $this->assertInstanceOf(
-            System::class,
+            PHPSystemExecutor::class,
             $command->getExecutor(),
             "the executor for new command must use the default executor class."
         );
