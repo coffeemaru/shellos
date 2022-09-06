@@ -1,0 +1,5 @@
+/vendor/
+/coverage/
+/.phpunit.cache/
+vimcode.json
+
