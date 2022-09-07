@@ -28,6 +28,14 @@ class SSHExecutionTest extends TestCase
         $this->test_port = intval(getenv("TEST_SSH_SERVER_PORT"));
     }
 
+    public function test_ssh_fail_call(): void
+    {
+        $command = new ShellCommand("ls --invalid-flag");
+        $executor = new SSHExecutor($this->test_host, $this->test_port, $this->username, $this->password);
+        $command->setExecutor($executor);
+        $this->assertFalse($command->execute(), "with expect that the execution command return false");
+    }
+
     public function test_ssh_server_connection(): void
     {
         $ssh = $this->getSSHConnection();

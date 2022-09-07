@@ -31,8 +31,9 @@ class SSHExecutor implements SystemExecutor
         $result = $ssh->exec($command);
         if ($result) {
             $output_lines = explode("\n", $result);
-            return 0;
         }
-        return -1;
+
+        $status = $ssh->getExitStatus();
+        return $status !== false ? $status : -1;
     }
 }
