@@ -2,4 +2,5 @@
 /coverage/
 /.phpunit.cache/
 vimcode.json
+.env
 
