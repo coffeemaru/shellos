@@ -9,12 +9,14 @@ class ShellCommand
     private int $result;
     private array $output;
     private string $command;
+    private array $options;
 
     protected SystemExecutor $executor;
     protected static SystemExecutor $default_executor;
 
     public function __construct(string $command)
     {
+        $this->options = [];
         $this->command = $command;
     }
 
@@ -22,8 +24,14 @@ class ShellCommand
     {
         $this->output = [];
         $executor = $this->getExecutor();
-        $this->result = $executor->execute($this->command, $this->output);
+        $this->result = $executor->execute($this->command, $this->output, $this->options);
         return $this->result === 0;
+    }
+
+    public function wd(string $path): static
+    {
+        $this->options["wd"] = $path;
+        return $this;
     }
 
     public function getOutputLines(): array
@@ -56,5 +64,15 @@ class ShellCommand
             }
         }
         return $this->executor;
+    }
+
+    public function __toString()
+    {
+        return $this->command;
+    }
+
+    public function getResultCode(): int
+    {
+        return $this->result;
     }
 }

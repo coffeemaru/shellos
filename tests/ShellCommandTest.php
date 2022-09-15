@@ -10,6 +10,10 @@ use Coffeemaru\Shellos\SystemExecutor;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @covers ::shell
+ * @covers \Coffeemaru\Shellos\ShellCommand
+ */
 class ShellCommandTest extends TestCase
 {
     private static string $tmpdir;
@@ -24,6 +28,33 @@ class ShellCommandTest extends TestCase
     {
         rmdir(static::$tmpdir);
         parent::tearDownAfterClass();
+    }
+
+    public function test_work_directory_function(): void
+    {
+        $inner_command = "pwd";
+        $command = shell($inner_command)->wd(static::$tmpdir);
+
+        $this->assertInstanceOf(
+            ShellCommand::class,
+            $command,
+            "the wd function must return the instance of the ShellCommand class"
+        );
+
+        $this->assertEquals(
+            $inner_command,
+            strval($command),
+            "the inner command must not be modified by the wd function"
+        );
+
+        /** @var MockObject */
+        $executerMock = $this->createMock(SystemExecutor::class);
+        $executerMock->expects($this->once())->method("execute")
+            ->with("pwd", [], ["wd" => static::$tmpdir])->willReturn(0);
+
+        /** @var SystemExecutor $executerMock */
+        $command->setExecutor($executerMock);
+        $command->execute();
     }
 
     /**

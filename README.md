@@ -39,7 +39,7 @@ locally.
 $exec = new SSHExecutor($host, $port, $username, $password)
 ShellCommand::setDefaultExecutor($exec);
 
-# below this code all the `shell` functions calls will raise a ssh command on the remote host.
+# below this code all the `shell` functions call wills raise a ssh command on the remote host.
 $command = ssh("ls -la")
 if($command->execute()) { # <-- raise a ssh command 
 }

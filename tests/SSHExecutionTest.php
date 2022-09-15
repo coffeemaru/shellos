@@ -28,6 +28,33 @@ class SSHExecutionTest extends TestCase
         $this->test_port = intval(getenv("TEST_SSH_SERVER_PORT"));
     }
 
+    public function test_work_directory_change(): void
+    {
+        $ssh = $this->getSSHConnection();
+        $ssh->exec('mkdir -p shellos/tests');
+        $this->assertEquals(
+            0,
+            $ssh->getExitStatus(),
+            'unable to create the test dir: '
+        );
+
+        $executer = new SSHExecutor(
+            $this->test_host,
+            $this->test_port,
+            $this->username,
+            $this->password
+        );
+
+        $output = [];
+        $result = $executer->execute('ls', $output, ['wd' => 'shellos']);
+        $this->assertEquals(
+            0,
+            $result,
+            "no errors was expected on command execution"
+        );
+        $this->assertContains('tests', $output);
+    }
+
     public function test_ssh_fail_call(): void
     {
         $command = new ShellCommand("ls --invalid-flag");
@@ -41,7 +68,6 @@ class SSHExecutionTest extends TestCase
         $ssh = $this->getSSHConnection();
         $result = $ssh->exec("ls -a");
         $this->assertNotEmpty($result, "the test command don't return any content");
-        $this->assertContains("test.txt", explode("\n", $result));
     }
 
     public function test_ssh_function(): void
@@ -59,6 +85,24 @@ class SSHExecutionTest extends TestCase
             "the returned ssh command result is different from the expected"
         );
     }
+
+    public function test_execution_with_invalid_login_credentials(): void
+    {
+        $command = new ShellCommand('pwd');
+        $command->setExecutor(new SSHExecutor($this->test_host, $this->test_port, '', ''));
+        $this->assertFalse($command->execute(), "was expected that the command fail");
+        $this->assertEquals(
+            -1,
+            $command->getResultCode(),
+            "was expected that the result code of the output was -1"
+        );
+        $this->assertContains(
+            "was unable to login to the server",
+            $command->getOutputLines(),
+            "was expected that the login error message was added to the response lines"
+        );
+    }
+
 
     private function getSSHConnection(): SSH2
     {

@@ -2,14 +2,18 @@
 
 namespace Coffeemaru\Shellos\Executors;
 
-use Coffeemaru\Shellos\SystemExecutor;
-
-class PHPSystemExecutor implements SystemExecutor
+class PHPSystemExecutor extends PHPExecutor
 {
-    public function execute(string $command, array &$output_lines = []): int
+    public function execute(string $command, array &$output_lines = [], array $options = []): int
     {
         $result = 0;
-        system($command, $result);
+        if (isset($options["wd"])) {
+            $this->inDir($options["wd"], function () use ($command, &$result) {
+                system($command, $result);
+            });
+        } else {
+            system($command, $result);
+        }
         return $result;
     }
 }
